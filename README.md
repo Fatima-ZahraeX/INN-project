@@ -10,6 +10,7 @@ Pour générer des textures avec PSGAN, utilisez la commande suivante :
 
 ```bash
 python PSGAN.py --texturePath=samples/milano/ --ngf=120 --zLoc=50 --ndf=120 --nDep=5 --nDepD=5 --batchSize=16
+'''
 
 ##  Méthode "Copier Coller" pour la Génération de Textures
 
