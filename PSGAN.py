@@ -75,9 +75,9 @@ fixnoise=fixnoise.to(device)
 # setup optimizer
 optimizerD = optim.Adam(netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))#netD.parameters()
 optimizerU = optim.Adam([param for net in Gnets for param in list(net.parameters())], lr=opt.lr, betas=(opt.beta1, 0.999))
-D = []
-DG1 = []
-DG2 = []
+D_values = []
+DG1_values = []
+DG2_values = []
 for epoch in range(opt.niter):
     for i, data in enumerate(dataloader, 0):
         t0 = time.time()
@@ -137,23 +137,28 @@ for epoch in range(opt.niter):
 
             vutils.save_image(fakeBig,'%s/big_texture_%03d_%s.jpg' % (opt.outputFolder, epoch,desc),normalize=True)
             netG.train()
-    D += [D_x]
-    DG1 += [D_G_z1]
-    DG2 += [D_G_z2]
+    D_values.append(D_x.cpu().item())
+    DG1_values.append(D_G_z1.cpu().item())
+    DG2_values.append(D_G_z2.cpu().item())
             ##OPTIONAL
             ##save/load model for later use if desired
             #outModelName = '%s/netG_epoch_%d_%s.pth' % (opt.outputFolder, epoch*0,desc)
             #torch.save(netU.state_dict(),outModelName )
             #netU.load_state_dict(torch.load(outModelName))
+
+saved_values = torch.load('saved_values.pth')
+D_values = saved_values['D_values']
+DG1_values = saved_values['DG1_values']
+DG2_values = saved_values['DG2_values']
+
 # Plot and save the results
 plt.figure(figsize=(10, 5))
-plt.plot(D, label='D(x)')
-plt.plot(DG1, label='D(G(z)) before gen update')
-plt.plot(DG2, label='D(G(z)) after gen update')
+plt.plot(D_values, label='D(x)')
+plt.plot(DG1_values, label='D(G(z)) before gen update')
+plt.plot(DG2_values, label='D(G(z)) after gen update')
 plt.legend()
 plt.xlabel('Iterations')
 plt.ylabel('Values')
 plt.title('Discriminator Outputs During Training')
 plt.savefig('%s/plot_discriminator_outputs_%s.png' % (opt.outputFolder, desc))
 plt.show()
-    
